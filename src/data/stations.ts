@@ -1,0 +1,126 @@
+export interface Station {
+  name: string;
+  code: string;
+  city: string;
+  state: string;
+}
+
+export const stations: Station[] = [
+  { name: "New Delhi", code: "NDLS", city: "Delhi", state: "Delhi" },
+  { name: "Delhi Cantt", code: "DEC", city: "Delhi", state: "Delhi" },
+  { name: "Delhi Sarai Rohilla", code: "DEE", city: "Delhi", state: "Delhi" },
+  { name: "Hazrat Nizamuddin", code: "NZM", city: "Delhi", state: "Delhi" },
+  { name: "Anand Vihar Terminal", code: "ANVT", city: "Delhi", state: "Delhi" },
+  { name: "Delhi Junction", code: "DLI", city: "Delhi", state: "Delhi" },
+  { name: "Mumbai Central", code: "MMCT", city: "Mumbai", state: "Maharashtra" },
+  { name: "Mumbai CSMT", code: "CSMT", city: "Mumbai", state: "Maharashtra" },
+  { name: "Lokmanya Tilak Terminus", code: "LTT", city: "Mumbai", state: "Maharashtra" },
+  { name: "Bandra Terminus", code: "BDTS", city: "Mumbai", state: "Maharashtra" },
+  { name: "Dadar", code: "DR", city: "Mumbai", state: "Maharashtra" },
+  { name: "Chennai Central", code: "MAS", city: "Chennai", state: "Tamil Nadu" },
+  { name: "Chennai Egmore", code: "MS", city: "Chennai", state: "Tamil Nadu" },
+  { name: "Howrah Junction", code: "HWH", city: "Kolkata", state: "West Bengal" },
+  { name: "Sealdah", code: "SDAH", city: "Kolkata", state: "West Bengal" },
+  { name: "Kolkata", code: "KOAA", city: "Kolkata", state: "West Bengal" },
+  { name: "Bangalore City", code: "SBC", city: "Bangalore", state: "Karnataka" },
+  { name: "Yesvantpur Junction", code: "YPR", city: "Bangalore", state: "Karnataka" },
+  { name: "KSR Bengaluru", code: "SBC", city: "Bangalore", state: "Karnataka" },
+  { name: "Hyderabad Deccan", code: "HYB", city: "Hyderabad", state: "Telangana" },
+  { name: "Secunderabad Junction", code: "SC", city: "Hyderabad", state: "Telangana" },
+  { name: "Kacheguda", code: "KCG", city: "Hyderabad", state: "Telangana" },
+  { name: "Ahmedabad Junction", code: "ADI", city: "Ahmedabad", state: "Gujarat" },
+  { name: "Jaipur Junction", code: "JP", city: "Jaipur", state: "Rajasthan" },
+  { name: "Lucknow Charbagh", code: "LKO", city: "Lucknow", state: "Uttar Pradesh" },
+  { name: "Lucknow Junction", code: "LJN", city: "Lucknow", state: "Uttar Pradesh" },
+  { name: "Patna Junction", code: "PNBE", city: "Patna", state: "Bihar" },
+  { name: "Pune Junction", code: "PUNE", city: "Pune", state: "Maharashtra" },
+  { name: "Kanpur Central", code: "CNB", city: "Kanpur", state: "Uttar Pradesh" },
+  { name: "Agra Cantt", code: "AGC", city: "Agra", state: "Uttar Pradesh" },
+  { name: "Varanasi Junction", code: "BSB", city: "Varanasi", state: "Uttar Pradesh" },
+  { name: "Allahabad Junction", code: "ALD", city: "Prayagraj", state: "Uttar Pradesh" },
+  { name: "Bhopal Junction", code: "BPL", city: "Bhopal", state: "Madhya Pradesh" },
+  { name: "Indore Junction", code: "INDB", city: "Indore", state: "Madhya Pradesh" },
+  { name: "Nagpur Junction", code: "NGP", city: "Nagpur", state: "Maharashtra" },
+  { name: "Guwahati", code: "GHY", city: "Guwahati", state: "Assam" },
+  { name: "Thiruvananthapuram Central", code: "TVC", city: "Thiruvananthapuram", state: "Kerala" },
+  { name: "Ernakulam Junction", code: "ERS", city: "Kochi", state: "Kerala" },
+  { name: "Kochi", code: "ERN", city: "Kochi", state: "Kerala" },
+  { name: "Coimbatore Junction", code: "CBE", city: "Coimbatore", state: "Tamil Nadu" },
+  { name: "Madurai Junction", code: "MDU", city: "Madurai", state: "Tamil Nadu" },
+  { name: "Visakhapatnam", code: "VSKP", city: "Visakhapatnam", state: "Andhra Pradesh" },
+  { name: "Vijayawada Junction", code: "BZA", city: "Vijayawada", state: "Andhra Pradesh" },
+  { name: "Tirupati", code: "TPTY", city: "Tirupati", state: "Andhra Pradesh" },
+  { name: "Ranchi", code: "RNC", city: "Ranchi", state: "Jharkhand" },
+  { name: "Dhanbad Junction", code: "DHN", city: "Dhanbad", state: "Jharkhand" },
+  { name: "Gaya Junction", code: "GAYA", city: "Gaya", state: "Bihar" },
+  { name: "Gorakhpur Junction", code: "GKP", city: "Gorakhpur", state: "Uttar Pradesh" },
+  { name: "Dehradun", code: "DDN", city: "Dehradun", state: "Uttarakhand" },
+  { name: "Haridwar Junction", code: "HW", city: "Haridwar", state: "Uttarakhand" },
+  { name: "Amritsar Junction", code: "ASR", city: "Amritsar", state: "Punjab" },
+  { name: "Jalandhar City", code: "JUC", city: "Jalandhar", state: "Punjab" },
+  { name: "Ludhiana Junction", code: "LDH", city: "Ludhiana", state: "Punjab" },
+  { name: "Chandigarh", code: "CDG", city: "Chandigarh", state: "Chandigarh" },
+  { name: "Jammu Tawi", code: "JAT", city: "Jammu", state: "Jammu & Kashmir" },
+  { name: "Srinagar", code: "SINA", city: "Srinagar", state: "Jammu & Kashmir" },
+  { name: "Jodhpur Junction", code: "JU", city: "Jodhpur", state: "Rajasthan" },
+  { name: "Udaipur City", code: "UDZ", city: "Udaipur", state: "Rajasthan" },
+  { name: "Ajmer Junction", code: "AII", city: "Ajmer", state: "Rajasthan" },
+  { name: "Bikaner Junction", code: "BKN", city: "Bikaner", state: "Rajasthan" },
+  { name: "Surat", code: "ST", city: "Surat", state: "Gujarat" },
+  { name: "Vadodara Junction", code: "BRC", city: "Vadodara", state: "Gujarat" },
+  { name: "Rajkot Junction", code: "RJT", city: "Rajkot", state: "Gujarat" },
+  { name: "Raipur Junction", code: "R", city: "Raipur", state: "Chhattisgarh" },
+  { name: "Bilaspur Junction", code: "BSP", city: "Bilaspur", state: "Chhattisgarh" },
+  { name: "Bhubaneswar", code: "BBS", city: "Bhubaneswar", state: "Odisha" },
+  { name: "Puri", code: "PURI", city: "Puri", state: "Odisha" },
+  { name: "Cuttack Junction", code: "CTC", city: "Cuttack", state: "Odisha" },
+  { name: "Mangalore Central", code: "MAQ", city: "Mangalore", state: "Karnataka" },
+  { name: "Hubli Junction", code: "UBL", city: "Hubli", state: "Karnataka" },
+  { name: "Mysore Junction", code: "MYS", city: "Mysore", state: "Karnataka" },
+  { name: "Goa (Madgaon)", code: "MAO", city: "Goa", state: "Goa" },
+  { name: "Vasco Da Gama", code: "VSG", city: "Goa", state: "Goa" },
+  { name: "Kota Junction", code: "KOTA", city: "Kota", state: "Rajasthan" },
+  { name: "Gwalior Junction", code: "GWL", city: "Gwalior", state: "Madhya Pradesh" },
+  { name: "Jabalpur Junction", code: "JBP", city: "Jabalpur", state: "Madhya Pradesh" },
+  { name: "Ujjain Junction", code: "UJN", city: "Ujjain", state: "Madhya Pradesh" },
+  { name: "Bareilly Junction", code: "BE", city: "Bareilly", state: "Uttar Pradesh" },
+  { name: "Moradabad Junction", code: "MB", city: "Moradabad", state: "Uttar Pradesh" },
+  { name: "Meerut City", code: "MTC", city: "Meerut", state: "Uttar Pradesh" },
+  { name: "Aligarh Junction", code: "ALJN", city: "Aligarh", state: "Uttar Pradesh" },
+  { name: "Mathura Junction", code: "MTJ", city: "Mathura", state: "Uttar Pradesh" },
+  { name: "Jhansi Junction", code: "JHS", city: "Jhansi", state: "Uttar Pradesh" },
+  { name: "Dibrugarh", code: "DBRG", city: "Dibrugarh", state: "Assam" },
+  { name: "Silchar", code: "SCL", city: "Silchar", state: "Assam" },
+  { name: "New Jalpaiguri", code: "NJP", city: "Siliguri", state: "West Bengal" },
+  { name: "Asansol Junction", code: "ASN", city: "Asansol", state: "West Bengal" },
+  { name: "Durgapur", code: "DGR", city: "Durgapur", state: "West Bengal" },
+  { name: "Mughal Sarai Junction", code: "MGS", city: "Mughal Sarai", state: "Uttar Pradesh" },
+  { name: "Kolhapur", code: "KOP", city: "Kolhapur", state: "Maharashtra" },
+  { name: "Nashik Road", code: "NK", city: "Nashik", state: "Maharashtra" },
+  { name: "Aurangabad", code: "AWB", city: "Aurangabad", state: "Maharashtra" },
+  { name: "Solapur Junction", code: "SUR", city: "Solapur", state: "Maharashtra" },
+  { name: "Salem Junction", code: "SA", city: "Salem", state: "Tamil Nadu" },
+  { name: "Trichy Junction", code: "TPJ", city: "Trichy", state: "Tamil Nadu" },
+  { name: "Thrissur", code: "TCR", city: "Thrissur", state: "Kerala" },
+  { name: "Kozhikode", code: "CLT", city: "Kozhikode", state: "Kerala" },
+  { name: "Kannur", code: "CAN", city: "Kannur", state: "Kerala" },
+  { name: "Shimla", code: "SML", city: "Shimla", state: "Himachal Pradesh" },
+  { name: "Kalka", code: "KLK", city: "Kalka", state: "Haryana" },
+  { name: "Ambala Cantt", code: "UMB", city: "Ambala", state: "Haryana" },
+  { name: "Panipat Junction", code: "PNP", city: "Panipat", state: "Haryana" },
+];
+
+export function searchStations(query: string): Station[] {
+  if (!query || query.length < 1) return [];
+  const q = query.toLowerCase();
+  return stations.filter(
+    (s) =>
+      s.name.toLowerCase().includes(q) ||
+      s.code.toLowerCase().includes(q) ||
+      s.city.toLowerCase().includes(q)
+  ).slice(0, 8);
+}
+
+export function getStationDisplay(station: Station): string {
+  return `${station.name} (${station.code})`;
+}
