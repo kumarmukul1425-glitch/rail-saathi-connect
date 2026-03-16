@@ -3,10 +3,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index.tsx";
 import SearchResults from "./pages/SearchResults.tsx";
 import TrainDetails from "./pages/TrainDetails.tsx";
 import BookTicket from "./pages/BookTicket.tsx";
+import Auth from "./pages/Auth.tsx";
+import MyBookings from "./pages/MyBookings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -17,13 +20,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/train/:trainNumber" element={<TrainDetails />} />
-          <Route path="/book/:trainNumber" element={<BookTicket />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/train/:trainNumber" element={<TrainDetails />} />
+            <Route path="/book/:trainNumber" element={<BookTicket />} />
+            <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

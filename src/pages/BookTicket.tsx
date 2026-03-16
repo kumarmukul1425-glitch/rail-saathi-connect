@@ -1,10 +1,13 @@
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { getTrainByNumber } from "@/data/trains";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { CheckCircle, Download, User, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Passenger {
   name: string;
@@ -16,6 +19,7 @@ export default function BookTicket() {
   const { trainNumber } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const seatClass = params.get("class") || "";
   const date = params.get("date") || "";
   const train = getTrainByNumber(trainNumber || "");
@@ -23,12 +27,25 @@ export default function BookTicket() {
   const [passengers, setPassengers] = useState<Passenger[]>([{ name: "", age: "", gender: "Male" }]);
   const [booked, setBooked] = useState(false);
   const [pnr, setPnr] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!train) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="text-center py-20"><h2 className="text-lg font-semibold">Train not found</h2></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="text-center py-20">
+          <h2 className="text-lg font-semibold text-foreground mb-2">Please log in to book</h2>
+          <Button onClick={() => navigate("/auth")} className="bg-accent hover:bg-accent/90 text-accent-foreground">Sign In</Button>
+        </div>
       </div>
     );
   }
@@ -49,14 +66,84 @@ export default function BookTicket() {
     setPassengers(updated);
   };
 
-  const handleBook = () => {
-    const valid = passengers.every((p) => p.name && p.age);
-    if (!valid) return;
-    setPnr(`PNR${Date.now().toString().slice(-10)}`);
-    setBooked(true);
-  };
-
   const totalFare = (classInfo?.price || 0) * passengers.length;
+
+  const handleBook = async () => {
+    const valid = passengers.every((p) => p.name && p.age);
+    if (!valid) { toast.error("Please fill all passenger details"); return; }
+    
+    setLoading(true);
+    try {
+      const generatedPnr = `PNR${Date.now().toString().slice(-10)}`;
+
+      // Find or get train_id from database - first check if train exists
+      let { data: dbTrain } = await supabase
+        .from("trains")
+        .select("id")
+        .eq("train_number", train.train_number)
+        .maybeSingle();
+
+      // If train not in DB, insert it
+      if (!dbTrain) {
+        const { data: inserted, error: insertErr } = await supabase
+          .from("trains")
+          .insert({
+            train_number: train.train_number,
+            train_name: train.train_name,
+            source_station: train.source_station,
+            source_code: train.source_code,
+            destination_station: train.destination_station,
+            destination_code: train.destination_code,
+            departure_time: train.departure_time,
+            arrival_time: train.arrival_time,
+            journey_duration: train.journey_duration,
+            train_type: train.train_type,
+            intermediate_stops: train.intermediate_stops,
+            sleeper_price: train.classes.find(c => c.code === "SL")?.price || 0,
+            ac3_price: train.classes.find(c => c.code === "3A")?.price || 0,
+            ac2_price: train.classes.find(c => c.code === "2A")?.price || 0,
+            ac1_price: train.classes.find(c => c.code === "1A")?.price || 0,
+          })
+          .select("id")
+          .single();
+        if (insertErr) throw insertErr;
+        dbTrain = inserted;
+      }
+
+      // Create booking
+      const { data: booking, error: bookErr } = await supabase
+        .from("bookings")
+        .insert({
+          user_id: user.id,
+          train_id: dbTrain!.id,
+          pnr: generatedPnr,
+          journey_date: date,
+          seat_class: seatClass,
+          total_fare: totalFare,
+        })
+        .select("id")
+        .single();
+      if (bookErr) throw bookErr;
+
+      // Add passengers
+      const passengerInserts = passengers.map((p) => ({
+        booking_id: booking.id,
+        name: p.name,
+        age: parseInt(p.age),
+        gender: p.gender,
+      }));
+      const { error: passErr } = await supabase.from("passengers").insert(passengerInserts);
+      if (passErr) throw passErr;
+
+      setPnr(generatedPnr);
+      setBooked(true);
+      toast.success("Booking confirmed!");
+    } catch (err: any) {
+      toast.error(err.message || "Booking failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (booked) {
     return (
@@ -90,8 +177,8 @@ export default function BookTicket() {
 
             <div className="flex gap-3">
               <Button onClick={() => navigate("/")} variant="outline" className="flex-1">Book Another</Button>
-              <Button className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Download className="w-4 h-4 mr-2" /> Download PDF
+              <Button onClick={() => navigate("/my-bookings")} className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
+                View Bookings
               </Button>
             </div>
           </motion.div>
@@ -103,7 +190,6 @@ export default function BookTicket() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="container mx-auto px-4 py-6 max-w-lg space-y-5">
         {/* Train Summary */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl p-4 border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
@@ -140,25 +226,10 @@ export default function BookTicket() {
                     </button>
                   )}
                 </div>
-                <input
-                  placeholder="Full Name"
-                  value={p.name}
-                  onChange={(e) => updatePassenger(i, "name", e.target.value)}
-                  className="w-full bg-secondary/50 rounded-lg px-3 py-2 border border-border text-sm outline-none focus:border-primary/40 transition-colors"
-                />
+                <input placeholder="Full Name" value={p.name} onChange={(e) => updatePassenger(i, "name", e.target.value)} className="w-full bg-secondary/50 rounded-lg px-3 py-2 border border-border text-sm outline-none focus:border-primary/40 transition-colors" />
                 <div className="flex gap-2">
-                  <input
-                    placeholder="Age"
-                    type="number"
-                    value={p.age}
-                    onChange={(e) => updatePassenger(i, "age", e.target.value)}
-                    className="w-20 bg-secondary/50 rounded-lg px-3 py-2 border border-border text-sm outline-none focus:border-primary/40 transition-colors"
-                  />
-                  <select
-                    value={p.gender}
-                    onChange={(e) => updatePassenger(i, "gender", e.target.value)}
-                    className="flex-1 bg-secondary/50 rounded-lg px-3 py-2 border border-border text-sm outline-none focus:border-primary/40 transition-colors"
-                  >
+                  <input placeholder="Age" type="number" value={p.age} onChange={(e) => updatePassenger(i, "age", e.target.value)} className="w-20 bg-secondary/50 rounded-lg px-3 py-2 border border-border text-sm outline-none focus:border-primary/40 transition-colors" />
+                  <select value={p.gender} onChange={(e) => updatePassenger(i, "gender", e.target.value)} className="flex-1 bg-secondary/50 rounded-lg px-3 py-2 border border-border text-sm outline-none focus:border-primary/40 transition-colors">
                     <option>Male</option>
                     <option>Female</option>
                     <option>Other</option>
@@ -183,10 +254,10 @@ export default function BookTicket() {
 
         <Button
           onClick={handleBook}
-          disabled={!passengers.every((p) => p.name && p.age)}
+          disabled={loading || !passengers.every((p) => p.name && p.age)}
           className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 rounded-xl text-base"
         >
-          Confirm Booking — ₹{totalFare}
+          {loading ? "Booking..." : `Confirm Booking — ₹${totalFare}`}
         </Button>
       </div>
     </div>
