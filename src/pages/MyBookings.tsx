@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Ticket, Calendar, TrainFront } from "lucide-react";
+import { Ticket, Calendar, TrainFront, Share2 } from "lucide-react";
+import TicketShare from "@/components/TicketShare";
 
 export default function MyBookings() {
   const { user } = useAuth();
@@ -75,6 +76,21 @@ export default function MyBookings() {
                     {booking.passengers.map((p: any) => p.name).join(", ")}
                   </div>
                 )}
+                <div className="mt-3 pt-3 border-t border-border">
+                  <TicketShare
+                    ticket={{
+                      pnr: booking.pnr,
+                      trainNumber: booking.trains?.train_number || "",
+                      trainName: booking.trains?.train_name || "",
+                      sourceCode: booking.trains?.source_code || "",
+                      destinationCode: booking.trains?.destination_code || "",
+                      date: booking.journey_date,
+                      seatClass: booking.seat_class,
+                      passengers: (booking.passengers || []).map((p: any) => ({ name: p.name, age: p.age, gender: p.gender })),
+                      totalFare: booking.total_fare,
+                    }}
+                  />
+                </div>
               </motion.div>
             ))}
           </div>

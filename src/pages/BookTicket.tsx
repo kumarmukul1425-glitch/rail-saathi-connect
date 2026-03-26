@@ -6,7 +6,8 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { CheckCircle, Download, User, Plus, Trash2 } from "lucide-react";
+import { CheckCircle, Download, User, Plus, Trash2, Share2 } from "lucide-react";
+import TicketShare from "@/components/TicketShare";
 import { toast } from "sonner";
 
 interface Passenger {
@@ -173,6 +174,24 @@ export default function BookTicket() {
                   <span className="text-muted-foreground">{p.age}y / {p.gender}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Share buttons */}
+            <div className="mb-6">
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2 flex items-center gap-1"><Share2 className="w-3 h-3" /> Share Ticket</p>
+              <TicketShare
+                ticket={{
+                  pnr,
+                  trainNumber: train.train_number,
+                  trainName: train.train_name,
+                  sourceCode: train.source_code,
+                  destinationCode: train.destination_code,
+                  date,
+                  seatClass,
+                  passengers: passengers.map((p) => ({ name: p.name, age: p.age, gender: p.gender })),
+                  totalFare,
+                }}
+              />
             </div>
 
             <div className="flex gap-3">
