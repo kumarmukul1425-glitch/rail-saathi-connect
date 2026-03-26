@@ -11,6 +11,7 @@ import BookTicket from "./pages/BookTicket.tsx";
 import Auth from "./pages/Auth.tsx";
 import MyBookings from "./pages/MyBookings.tsx";
 import TravelAssistant from "./pages/TravelAssistant.tsx";
+import SleepAlert from "./pages/SleepAlert.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/book/:trainNumber" element={<BookTicket />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/assistant" element={<TravelAssistant />} />
+            <Route path="/sleep-alert" element={<SleepAlert />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
