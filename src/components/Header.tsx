@@ -1,4 +1,4 @@
-import { Train, LogIn, LogOut, User, Menu, X } from "lucide-react";
+import { Train, LogIn, LogOut, User, Menu, X, Bot } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
@@ -21,6 +21,7 @@ export default function Header() {
           {user && (
             <>
               <Link to="/my-bookings" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">My Bookings</Link>
+              <Link to="/assistant" className="flex items-center gap-1 text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"><Bot className="w-3.5 h-3.5" /> AI Assistant</Link>
               <Link to="/complaints" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">Complaints</Link>
             </>
           )}
@@ -48,6 +49,7 @@ export default function Header() {
           {user && (
             <>
               <Link to="/my-bookings" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">My Bookings</Link>
+              <Link to="/assistant" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">🤖 AI Assistant</Link>
               <Link to="/complaints" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">Complaints</Link>
             </>
           )}
