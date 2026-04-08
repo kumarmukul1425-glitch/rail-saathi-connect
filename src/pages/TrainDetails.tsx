@@ -123,14 +123,21 @@ export default function TrainDetails() {
           </div>
         </motion.div>
 
-        {/* Book Button */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        {/* Action Buttons */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-2">
           <Button
             disabled={!selectedClass}
             onClick={() => navigate(`/book/${train.train_number}?class=${selectedClass}&date=${date}`)}
             className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 rounded-xl text-base"
           >
             {selectedClass ? `Book ${selectedClass} — ₹${train.classes.find(c => c.code === selectedClass)?.price}` : "Select a class to continue"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/timetable/${train.train_number}`)}
+            className="w-full"
+          >
+            <Clock className="w-4 h-4 mr-2" /> View Full Timetable & Route Map
           </Button>
         </motion.div>
       </div>
