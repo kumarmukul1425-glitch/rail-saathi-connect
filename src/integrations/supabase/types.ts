@@ -99,6 +99,53 @@ export type Database = {
           },
         ]
       }
+      delay_compensations: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          compensation_type: string
+          created_at: string
+          delay_hours: number
+          id: string
+          redeemed_at: string | null
+          status: string
+          user_id: string
+          voucher_code: string | null
+        }
+        Insert: {
+          amount?: number
+          booking_id?: string | null
+          compensation_type?: string
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          redeemed_at?: string | null
+          status?: string
+          user_id: string
+          voucher_code?: string | null
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          compensation_type?: string
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          redeemed_at?: string | null
+          status?: string
+          user_id?: string
+          voucher_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delay_compensations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       food_orders: {
         Row: {
           created_at: string
@@ -131,6 +178,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      menu_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_available: boolean
+          is_vegetarian: boolean
+          name: string
+          price: number
+          restaurant_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          is_vegetarian?: boolean
+          name: string
+          price?: number
+          restaurant_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          is_vegetarian?: boolean
+          name?: string
+          price?: number
+          restaurant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       passengers: {
         Row: {
@@ -239,6 +333,39 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      restaurants: {
+        Row: {
+          created_at: string
+          cuisine_type: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          rating: number | null
+          station_code: string
+        }
+        Insert: {
+          created_at?: string
+          cuisine_type?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          rating?: number | null
+          station_code: string
+        }
+        Update: {
+          created_at?: string
+          cuisine_type?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          rating?: number | null
+          station_code?: string
         }
         Relationships: []
       }
