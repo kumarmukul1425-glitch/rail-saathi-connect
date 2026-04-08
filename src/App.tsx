@@ -12,6 +12,11 @@ import Auth from "./pages/Auth.tsx";
 import MyBookings from "./pages/MyBookings.tsx";
 import TravelAssistant from "./pages/TravelAssistant.tsx";
 import SleepAlert from "./pages/SleepAlert.tsx";
+import LiveTrainStatus from "./pages/LiveTrainStatus.tsx";
+import FoodDelivery from "./pages/FoodDelivery.tsx";
+import TrainTimetable from "./pages/TrainTimetable.tsx";
+import Complaints from "./pages/Complaints.tsx";
+import DelayCompensation from "./pages/DelayCompensation.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -28,10 +33,15 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/train/:trainNumber" element={<TrainDetails />} />
+            <Route path="/timetable/:trainNumber" element={<TrainTimetable />} />
             <Route path="/book/:trainNumber" element={<BookTicket />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/assistant" element={<TravelAssistant />} />
             <Route path="/sleep-alert" element={<SleepAlert />} />
+            <Route path="/live-status" element={<LiveTrainStatus />} />
+            <Route path="/food" element={<FoodDelivery />} />
+            <Route path="/complaints" element={<Complaints />} />
+            <Route path="/delay-compensation" element={<DelayCompensation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

@@ -1,4 +1,4 @@
-import { Train, LogIn, LogOut, User, Menu, X, Bot, Moon } from "lucide-react";
+import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTriangle, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
@@ -6,6 +6,19 @@ import { useState } from "react";
 export default function Header() {
   const { user, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const navItems = [
+    { to: "/", label: "Book Tickets", icon: null, auth: false },
+    { to: "/live-status", label: "Live Status", icon: Navigation, auth: false },
+    { to: "/food", label: "Food Order", icon: Utensils, auth: true },
+    { to: "/my-bookings", label: "My Bookings", icon: null, auth: true },
+    { to: "/assistant", label: "AI Assistant", icon: Bot, auth: true },
+    { to: "/sleep-alert", label: "Sleep Alert", icon: Moon, auth: true },
+    { to: "/delay-compensation", label: "Compensation", icon: AlertTriangle, auth: true },
+    { to: "/complaints", label: "Complaints", icon: MessageSquare, auth: true },
+  ];
+
+  const visibleItems = navItems.filter((n) => !n.auth || user);
 
   return (
     <header className="sticky top-0 z-50 bg-primary border-b border-primary/20">
@@ -16,45 +29,36 @@ export default function Header() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-5">
-          <Link to="/" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">Book Tickets</Link>
-          {user && (
-            <>
-              <Link to="/my-bookings" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">My Bookings</Link>
-              <Link to="/assistant" className="flex items-center gap-1 text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"><Bot className="w-3.5 h-3.5" /> AI Assistant</Link>
-              <Link to="/sleep-alert" className="flex items-center gap-1 text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"><Moon className="w-3.5 h-3.5" /> Sleep Alert</Link>
-              <Link to="/complaints" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">Complaints</Link>
-            </>
-          )}
+        <nav className="hidden md:flex items-center gap-4">
+          {visibleItems.map((n) => (
+            <Link key={n.to} to={n.to} className="flex items-center gap-1 text-xs font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+              {n.icon && <n.icon className="w-3.5 h-3.5" />}
+              {n.label}
+            </Link>
+          ))}
           {user ? (
-            <button onClick={signOut} className="flex items-center gap-1.5 text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-              <LogOut className="w-4 h-4" /> Logout
+            <button onClick={signOut} className="flex items-center gap-1 text-xs font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+              <LogOut className="w-3.5 h-3.5" /> Logout
             </button>
           ) : (
-            <Link to="/auth" className="flex items-center gap-1.5 text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-              <LogIn className="w-4 h-4" /> Login
+            <Link to="/auth" className="flex items-center gap-1 text-xs font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+              <LogIn className="w-3.5 h-3.5" /> Login
             </Link>
           )}
         </nav>
 
-        {/* Mobile menu toggle */}
         <button className="md:hidden text-primary-foreground" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Mobile Nav */}
       {menuOpen && (
         <div className="md:hidden bg-primary border-t border-primary-foreground/10 px-4 pb-4 space-y-2">
-          <Link to="/" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">Book Tickets</Link>
-          {user && (
-            <>
-              <Link to="/my-bookings" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">My Bookings</Link>
-              <Link to="/assistant" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">🤖 AI Assistant</Link>
-              <Link to="/sleep-alert" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">🛏️ Sleep Alert</Link>
-              <Link to="/complaints" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">Complaints</Link>
-            </>
-          )}
+          {visibleItems.map((n) => (
+            <Link key={n.to} to={n.to} onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-primary-foreground/80 py-2">
+              {n.icon ? `${n.label}` : n.label}
+            </Link>
+          ))}
           {user ? (
             <button onClick={() => { signOut(); setMenuOpen(false); }} className="block text-sm font-medium text-primary-foreground/80 py-2">Logout</button>
           ) : (
