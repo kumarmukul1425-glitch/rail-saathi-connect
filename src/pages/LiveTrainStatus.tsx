@@ -38,22 +38,58 @@ interface TrainStatus {
 }
 
 export default function LiveTrainStatus() {
+  const { user } = useAuth();
   const [trainNumber, setTrainNumber] = useState("");
   const [pnr, setPnr] = useState("");
   const [status, setStatus] = useState<TrainStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchType, setSearchType] = useState<"train" | "pnr">("train");
+  const [compensationAlert, setCompensationAlert] = useState<string | null>(null);
+
+  const checkDelayCompensation = async (trainNum: string, delayMins: number) => {
+    if (!user || delayMins < 180) return;
+    try {
+      const { data, error } = await supabase.functions.invoke("check-delay-compensation", {
+        body: { trainNumber: trainNum, delayMinutes: delayMins },
+      });
+      if (error) return;
+      if (data?.eligible) {
+        setCompensationAlert(data.message);
+        toast.success("🎉 Delay Compensation Issued!", {
+          description: data.message,
+          duration: 10000,
+        });
+        // Vibrate if supported
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+        // Browser notification
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("🚂 Train Delay Compensation", { body: data.message, icon: "/favicon.ico" });
+        } else if ("Notification" in window && Notification.permission !== "denied") {
+          Notification.requestPermission().then(p => {
+            if (p === "granted") new Notification("🚂 Train Delay Compensation", { body: data.message, icon: "/favicon.ico" });
+          });
+        }
+      } else if (data?.already_compensated) {
+        setCompensationAlert("Compensation already issued for today's delay.");
+      }
+    } catch { /* silent */ }
+  };
 
   const handleSearch = async () => {
     if (searchType === "train" && !trainNumber) return;
     if (searchType === "pnr" && !pnr) return;
     setLoading(true);
+    setCompensationAlert(null);
     try {
       const { data, error } = await supabase.functions.invoke("train-status", {
         body: { trainNumber: searchType === "train" ? trainNumber : undefined, pnr: searchType === "pnr" ? pnr : undefined },
       });
       if (error) throw error;
       setStatus(data);
+      // Auto-check compensation for 3hr+ delays
+      if (data?.delay_minutes >= 180) {
+        checkDelayCompensation(data.train_number, data.delay_minutes);
+      }
     } catch {
       setStatus(null);
     } finally {
