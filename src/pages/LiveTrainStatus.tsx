@@ -2,8 +2,10 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Train, MapPin, Clock, Gauge, AlertTriangle, Search, Navigation } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 interface StationStatus {
   name: string;
