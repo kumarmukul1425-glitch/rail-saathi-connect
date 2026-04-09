@@ -2,8 +2,10 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Train, MapPin, Clock, Gauge, AlertTriangle, Search, Navigation } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 interface StationStatus {
   name: string;
@@ -36,22 +38,58 @@ interface TrainStatus {
 }
 
 export default function LiveTrainStatus() {
+  const { user } = useAuth();
   const [trainNumber, setTrainNumber] = useState("");
   const [pnr, setPnr] = useState("");
   const [status, setStatus] = useState<TrainStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchType, setSearchType] = useState<"train" | "pnr">("train");
+  const [compensationAlert, setCompensationAlert] = useState<string | null>(null);
+
+  const checkDelayCompensation = async (trainNum: string, delayMins: number) => {
+    if (!user || delayMins < 180) return;
+    try {
+      const { data, error } = await supabase.functions.invoke("check-delay-compensation", {
+        body: { trainNumber: trainNum, delayMinutes: delayMins },
+      });
+      if (error) return;
+      if (data?.eligible) {
+        setCompensationAlert(data.message);
+        toast.success("🎉 Delay Compensation Issued!", {
+          description: data.message,
+          duration: 10000,
+        });
+        // Vibrate if supported
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+        // Browser notification
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("🚂 Train Delay Compensation", { body: data.message, icon: "/favicon.ico" });
+        } else if ("Notification" in window && Notification.permission !== "denied") {
+          Notification.requestPermission().then(p => {
+            if (p === "granted") new Notification("🚂 Train Delay Compensation", { body: data.message, icon: "/favicon.ico" });
+          });
+        }
+      } else if (data?.already_compensated) {
+        setCompensationAlert("Compensation already issued for today's delay.");
+      }
+    } catch { /* silent */ }
+  };
 
   const handleSearch = async () => {
     if (searchType === "train" && !trainNumber) return;
     if (searchType === "pnr" && !pnr) return;
     setLoading(true);
+    setCompensationAlert(null);
     try {
       const { data, error } = await supabase.functions.invoke("train-status", {
         body: { trainNumber: searchType === "train" ? trainNumber : undefined, pnr: searchType === "pnr" ? pnr : undefined },
       });
       if (error) throw error;
       setStatus(data);
+      // Auto-check compensation for 3hr+ delays
+      if (data?.delay_minutes >= 180) {
+        checkDelayCompensation(data.train_number, data.delay_minutes);
+      }
     } catch {
       setStatus(null);
     } finally {
@@ -118,6 +156,36 @@ export default function LiveTrainStatus() {
 
             {status && !loading && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                {/* Delay Compensation Alert */}
+                {compensationAlert && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-accent/10 border border-accent/30 rounded-xl p-4 flex items-start gap-3"
+                  >
+                    <AlertTriangle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-bold text-foreground">⚠️ Train Delayed — Compensation Issued!</p>
+                      <p className="text-xs text-muted-foreground mt-1">{compensationAlert}</p>
+                      <a href="/delay-compensation" className="text-xs text-primary font-semibold mt-2 inline-block hover:underline">
+                        View My Compensations →
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
+
+                {status.delay_minutes >= 180 && !compensationAlert && user && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 flex items-center gap-3"
+                  >
+                    <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
+                    <p className="text-sm text-foreground">
+                      ⏰ Train delayed by {Math.round(status.delay_minutes / 60)}+ hours. Checking compensation eligibility...
+                    </p>
+                  </motion.div>
+                )}
                 {/* Train Info Card */}
                 <div className="bg-primary rounded-xl p-5 text-primary-foreground">
                   <div className="flex items-center justify-between mb-3">
