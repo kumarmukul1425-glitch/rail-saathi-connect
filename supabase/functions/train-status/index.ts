@@ -28,9 +28,12 @@ Deno.serve(async (req) => {
         )
         if (res.ok) {
           const data = await res.json()
-          return new Response(JSON.stringify({ source: 'api', ...data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          })
+          // Only use API data if it has valid train info
+          if (data && data.TrainNumber && data.CurrentStation) {
+            return new Response(JSON.stringify({ source: 'api', ...data }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            })
+          }
         }
       }
       if (pnr) {
