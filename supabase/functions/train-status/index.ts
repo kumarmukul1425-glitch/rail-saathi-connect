@@ -43,9 +43,11 @@ Deno.serve(async (req) => {
         )
         if (res.ok) {
           const data = await res.json()
-          return new Response(JSON.stringify({ source: 'api', ...data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          })
+          if (data && data.TrainNumber) {
+            return new Response(JSON.stringify({ source: 'api', ...data }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            })
+          }
         }
       }
     } catch {
