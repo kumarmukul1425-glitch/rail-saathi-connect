@@ -14,6 +14,8 @@ interface Passenger {
   name: string;
   age: string;
   gender: string;
+  coach_number?: string;
+  seat_number?: string;
 }
 
 export default function BookTicket() {
@@ -126,19 +128,31 @@ export default function BookTicket() {
         .single();
       if (bookErr) throw bookErr;
 
-      // Add passengers
-      const passengerInserts = passengers.map((p) => ({
+      // Generate seat allocations
+      const coachPrefixes: Record<string, string> = { "SL": "S", "3A": "B", "2A": "A", "1A": "H" };
+      const coachPrefix = coachPrefixes[seatClass] || "G";
+      const coachNumber = Math.ceil(Math.random() * 4);
+      const allocatedPassengers = passengers.map((p, idx) => ({
         booking_id: booking.id,
         name: p.name,
         age: parseInt(p.age),
         gender: p.gender,
+        coach_number: `${coachPrefix}${coachNumber}`,
+        seat_number: `${Math.floor(Math.random() * 72) + 1}`,
       }));
-      const { error: passErr } = await supabase.from("passengers").insert(passengerInserts);
+      const { error: passErr } = await supabase.from("passengers").insert(allocatedPassengers);
       if (passErr) throw passErr;
 
+      // Update passengers state with seat info
+      setPassengers(allocatedPassengers.map(ap => ({
+        name: ap.name,
+        age: String(ap.age),
+        gender: ap.gender,
+        coach_number: ap.coach_number,
+        seat_number: ap.seat_number,
+      })));
       setPnr(generatedPnr);
       setBooked(true);
-      toast.success("Booking confirmed!");
     } catch (err: any) {
       toast.error(err.message || "Booking failed");
     } finally {
@@ -167,11 +181,17 @@ export default function BookTicket() {
             </div>
 
             <div className="bg-secondary/50 rounded-xl p-4 text-left mb-6">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">Passengers</h3>
+              <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">Passengers & Seat Allocation</h3>
               {passengers.map((p, i) => (
-                <div key={i} className="flex justify-between text-sm py-1">
-                  <span>{p.name}</span>
-                  <span className="text-muted-foreground">{p.age}y / {p.gender}</span>
+                <div key={i} className="flex justify-between text-sm py-1.5 border-b border-border/50 last:border-0">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{p.name}</span>
+                    <span className="text-xs text-muted-foreground">{p.age}y / {p.gender}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs font-bold text-primary">{p.coach_number} - {p.seat_number}</span>
+                    <span className="text-[10px] text-muted-foreground">Coach / Seat</span>
+                  </div>
                 </div>
               ))}
             </div>

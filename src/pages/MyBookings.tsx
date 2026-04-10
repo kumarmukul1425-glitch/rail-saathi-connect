@@ -72,8 +72,15 @@ export default function MyBookings() {
                   <span className="flex items-center gap-1"><Ticket className="w-3 h-3" />{booking.seat_class} • ₹{booking.total_fare}</span>
                 </div>
                 {booking.passengers && booking.passengers.length > 0 && (
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    {booking.passengers.map((p: any) => p.name).join(", ")}
+                  <div className="mt-2 space-y-1">
+                    {booking.passengers.map((p: any, idx: number) => (
+                      <div key={idx} className="flex justify-between text-xs text-muted-foreground">
+                        <span>{p.name} ({p.age}y/{p.gender})</span>
+                        {p.coach_number && p.seat_number ? (
+                          <span className="font-semibold text-primary">{p.coach_number}-{p.seat_number}</span>
+                        ) : null}
+                      </div>
+                    ))}
                   </div>
                 )}
                 <div className="mt-3 pt-3 border-t border-border">
