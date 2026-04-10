@@ -230,23 +230,29 @@ export type Database = {
         Row: {
           age: number
           booking_id: string
+          coach_number: string | null
           gender: string
           id: string
           name: string
+          seat_number: string | null
         }
         Insert: {
           age: number
           booking_id: string
+          coach_number?: string | null
           gender: string
           id?: string
           name: string
+          seat_number?: string | null
         }
         Update: {
           age?: number
           booking_id?: string
+          coach_number?: string | null
           gender?: string
           id?: string
           name?: string
+          seat_number?: string | null
         }
         Relationships: [
           {
