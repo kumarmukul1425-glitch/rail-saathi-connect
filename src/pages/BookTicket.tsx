@@ -14,6 +14,8 @@ interface Passenger {
   name: string;
   age: string;
   gender: string;
+  coach_number?: string;
+  seat_number?: string;
 }
 
 export default function BookTicket() {
