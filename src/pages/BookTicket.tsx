@@ -126,14 +126,19 @@ export default function BookTicket() {
         .single();
       if (bookErr) throw bookErr;
 
-      // Add passengers
-      const passengerInserts = passengers.map((p) => ({
+      // Generate seat allocations
+      const coachPrefixes: Record<string, string> = { "SL": "S", "3A": "B", "2A": "A", "1A": "H" };
+      const coachPrefix = coachPrefixes[seatClass] || "G";
+      const coachNumber = Math.ceil(Math.random() * 4);
+      const allocatedPassengers = passengers.map((p, idx) => ({
         booking_id: booking.id,
         name: p.name,
         age: parseInt(p.age),
         gender: p.gender,
+        coach_number: `${coachPrefix}${coachNumber}`,
+        seat_number: `${Math.floor(Math.random() * 72) + 1}`,
       }));
-      const { error: passErr } = await supabase.from("passengers").insert(passengerInserts);
+      const { error: passErr } = await supabase.from("passengers").insert(allocatedPassengers);
       if (passErr) throw passErr;
 
       setPnr(generatedPnr);
