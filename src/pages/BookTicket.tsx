@@ -6,8 +6,10 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { CheckCircle, Download, User, Plus, Trash2, Share2 } from "lucide-react";
+import { CheckCircle, User, Plus, Trash2, Share2 } from "lucide-react";
 import TicketShare from "@/components/TicketShare";
+import SeatLayout, { getSmartSeatAllocation } from "@/components/SeatLayout";
+import PaymentGateway from "@/components/PaymentGateway";
 import { toast } from "sonner";
 
 interface Passenger {
@@ -16,7 +18,10 @@ interface Passenger {
   gender: string;
   coach_number?: string;
   seat_number?: string;
+  berth_type?: string;
 }
+
+type BookingStep = "details" | "payment" | "confirmed";
 
 export default function BookTicket() {
   const { trainNumber } = useParams();
@@ -28,7 +33,7 @@ export default function BookTicket() {
   const train = getTrainByNumber(trainNumber || "");
 
   const [passengers, setPassengers] = useState<Passenger[]>([{ name: "", age: "", gender: "Male" }]);
-  const [booked, setBooked] = useState(false);
+  const [step, setStep] = useState<BookingStep>("details");
   const [pnr, setPnr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -71,22 +76,27 @@ export default function BookTicket() {
 
   const totalFare = (classInfo?.price || 0) * passengers.length;
 
-  const handleBook = async () => {
+  const handleProceedToPayment = () => {
     const valid = passengers.every((p) => p.name && p.age);
     if (!valid) { toast.error("Please fill all passenger details"); return; }
-    
+    setStep("payment");
+  };
+
+  const handlePaymentSuccess = async () => {
     setLoading(true);
     try {
       const generatedPnr = `PNR${Date.now().toString().slice(-10)}`;
 
-      // Find or get train_id from database - first check if train exists
+      // Smart seat allocation
+      const { coach, allocations } = getSmartSeatAllocation(passengers, seatClass);
+
+      // Find or insert train in DB
       let { data: dbTrain } = await supabase
         .from("trains")
         .select("id")
         .eq("train_number", train.train_number)
         .maybeSingle();
 
-      // If train not in DB, insert it
       if (!dbTrain) {
         const { data: inserted, error: insertErr } = await supabase
           .from("trains")
@@ -128,43 +138,44 @@ export default function BookTicket() {
         .single();
       if (bookErr) throw bookErr;
 
-      // Generate seat allocations
-      const coachPrefixes: Record<string, string> = { "SL": "S", "3A": "B", "2A": "A", "1A": "H" };
-      const coachPrefix = coachPrefixes[seatClass] || "G";
-      const coachNumber = Math.ceil(Math.random() * 4);
+      // Insert passengers with smart allocation
       const allocatedPassengers = passengers.map((p, idx) => ({
         booking_id: booking.id,
         name: p.name,
         age: parseInt(p.age),
         gender: p.gender,
-        coach_number: `${coachPrefix}${coachNumber}`,
-        seat_number: `${Math.floor(Math.random() * 72) + 1}`,
+        coach_number: coach,
+        seat_number: String(allocations[idx].seat),
       }));
       const { error: passErr } = await supabase.from("passengers").insert(allocatedPassengers);
       if (passErr) throw passErr;
 
-      // Update passengers state with seat info
-      setPassengers(allocatedPassengers.map(ap => ({
+      // Update state
+      setPassengers(allocatedPassengers.map((ap, idx) => ({
         name: ap.name,
         age: String(ap.age),
         gender: ap.gender,
         coach_number: ap.coach_number,
         seat_number: ap.seat_number,
+        berth_type: allocations[idx].berth,
       })));
       setPnr(generatedPnr);
-      setBooked(true);
+      setStep("confirmed");
     } catch (err: any) {
       toast.error(err.message || "Booking failed");
+      setStep("details");
     } finally {
       setLoading(false);
     }
   };
 
-  if (booked) {
+  // CONFIRMED VIEW
+  if (step === "confirmed") {
+    const coachNum = passengers[0]?.coach_number || "";
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-10 max-w-lg">
+        <div className="container mx-auto px-4 py-10 max-w-lg space-y-5">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-card rounded-2xl p-6 border border-border text-center" style={{ boxShadow: "var(--shadow-prominent)" }}>
             <CheckCircle className="w-14 h-14 text-success mx-auto mb-4" />
             <h1 className="text-xl font-bold text-foreground mb-1">Booking Confirmed!</h1>
@@ -180,7 +191,7 @@ export default function BookTicket() {
               <div className="border-t border-border pt-2 flex justify-between text-sm"><span className="font-semibold">Total Fare</span><span className="font-bold text-foreground">₹{totalFare}</span></div>
             </div>
 
-            <div className="bg-secondary/50 rounded-xl p-4 text-left mb-6">
+            <div className="bg-secondary/50 rounded-xl p-4 text-left mb-4">
               <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">Passengers & Seat Allocation</h3>
               {passengers.map((p, i) => (
                 <div key={i} className="flex justify-between text-sm py-1.5 border-b border-border/50 last:border-0">
@@ -189,43 +200,64 @@ export default function BookTicket() {
                     <span className="text-xs text-muted-foreground">{p.age}y / {p.gender}</span>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="text-xs font-bold text-primary">{p.coach_number} - {p.seat_number}</span>
-                    <span className="text-[10px] text-muted-foreground">Coach / Seat</span>
+                    <span className="text-xs font-bold text-primary">{p.coach_number} - Seat {p.seat_number}</span>
+                    <span className="text-[10px] text-accent font-semibold">{p.berth_type}</span>
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Share buttons */}
-            <div className="mb-6">
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2 flex items-center gap-1"><Share2 className="w-3 h-3" /> Share Ticket</p>
-              <TicketShare
-                ticket={{
-                  pnr,
-                  trainNumber: train.train_number,
-                  trainName: train.train_name,
-                  sourceCode: train.source_code,
-                  destinationCode: train.destination_code,
-                  date,
-                  seatClass,
-                  passengers: passengers.map((p) => ({ name: p.name, age: p.age, gender: p.gender })),
-                  totalFare,
-                }}
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <Button onClick={() => navigate("/")} variant="outline" className="flex-1">Book Another</Button>
-              <Button onClick={() => navigate("/my-bookings")} className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
-                View Bookings
-              </Button>
-            </div>
           </motion.div>
+
+          {/* Seat Layout */}
+          <SeatLayout seatClass={seatClass} passengers={passengers} coachNumber={coachNum} />
+
+          {/* Share */}
+          <div className="bg-card rounded-xl p-4 border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
+            <p className="text-xs font-semibold text-muted-foreground uppercase mb-2 flex items-center gap-1"><Share2 className="w-3 h-3" /> Share Ticket</p>
+            <TicketShare
+              ticket={{
+                pnr,
+                trainNumber: train.train_number,
+                trainName: train.train_name,
+                sourceCode: train.source_code,
+                destinationCode: train.destination_code,
+                date,
+                seatClass,
+                passengers: passengers.map((p) => ({ name: p.name, age: p.age, gender: p.gender })),
+                totalFare,
+              }}
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <Button onClick={() => navigate("/")} variant="outline" className="flex-1">Book Another</Button>
+            <Button onClick={() => navigate("/my-bookings")} className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
+              View Bookings
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
+  // PAYMENT VIEW
+  if (step === "payment") {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-6 max-w-lg">
+          <PaymentGateway
+            amount={totalFare}
+            onSuccess={handlePaymentSuccess}
+            onCancel={() => setStep("details")}
+            loading={loading}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // DETAILS VIEW (default)
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -279,6 +311,11 @@ export default function BookTicket() {
           </div>
         </motion.div>
 
+        {/* Smart Allocation Info */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="bg-primary/5 rounded-xl p-3 border border-primary/20">
+          <p className="text-xs text-primary font-medium">🧠 Smart Seat Allocation: Seniors (60+), children (5-), and women get priority for Lower Berths automatically.</p>
+        </motion.div>
+
         {/* Fare Summary */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-card rounded-xl p-4 border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex justify-between text-sm mb-1">
@@ -292,11 +329,11 @@ export default function BookTicket() {
         </motion.div>
 
         <Button
-          onClick={handleBook}
+          onClick={handleProceedToPayment}
           disabled={loading || !passengers.every((p) => p.name && p.age)}
           className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 rounded-xl text-base"
         >
-          {loading ? "Booking..." : `Confirm Booking — ₹${totalFare}`}
+          Proceed to Payment — ₹{totalFare}
         </Button>
       </div>
     </div>
