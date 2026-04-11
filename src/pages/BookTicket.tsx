@@ -146,6 +146,7 @@ export default function BookTicket() {
         gender: p.gender,
         coach_number: coach,
         seat_number: String(allocations[idx].seat),
+        berth_type: allocations[idx].berth,
       }));
       const { error: passErr } = await supabase.from("passengers").insert(allocatedPassengers);
       if (passErr) throw passErr;

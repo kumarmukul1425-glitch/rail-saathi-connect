@@ -229,6 +229,7 @@ export type Database = {
       passengers: {
         Row: {
           age: number
+          berth_type: string | null
           booking_id: string
           coach_number: string | null
           gender: string
@@ -238,6 +239,7 @@ export type Database = {
         }
         Insert: {
           age: number
+          berth_type?: string | null
           booking_id: string
           coach_number?: string | null
           gender: string
@@ -247,6 +249,7 @@ export type Database = {
         }
         Update: {
           age?: number
+          berth_type?: string | null
           booking_id?: string
           coach_number?: string | null
           gender?: string

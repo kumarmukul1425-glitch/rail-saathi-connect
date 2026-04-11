@@ -76,9 +76,14 @@ export default function MyBookings() {
                     {booking.passengers.map((p: any, idx: number) => (
                       <div key={idx} className="flex justify-between text-xs text-muted-foreground">
                         <span>{p.name} ({p.age}y/{p.gender})</span>
-                        {p.coach_number && p.seat_number ? (
-                          <span className="font-semibold text-primary">{p.coach_number}-{p.seat_number}</span>
-                        ) : null}
+                        <div className="flex items-center gap-2">
+                          {p.berth_type && (
+                            <span className="text-[10px] font-semibold bg-accent/10 text-accent px-1.5 py-0.5 rounded">{p.berth_type}</span>
+                          )}
+                          {p.coach_number && p.seat_number ? (
+                            <span className="font-semibold text-primary">{p.coach_number}-{p.seat_number}</span>
+                          ) : null}
+                        </div>
                       </div>
                     ))}
                   </div>
