@@ -2,6 +2,7 @@ import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTr
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import AdminNotificationBell from "@/components/AdminNotificationBell";
 
 export default function Header() {
   const { user, signOut } = useAuth();
@@ -36,6 +37,7 @@ export default function Header() {
               {n.label}
             </Link>
           ))}
+          <AdminNotificationBell />
           {user ? (
             <button onClick={signOut} className="flex items-center gap-1 text-xs font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">
               <LogOut className="w-3.5 h-3.5" /> Logout
@@ -47,7 +49,9 @@ export default function Header() {
           )}
         </nav>
 
-        <button className="md:hidden text-primary-foreground" onClick={() => setMenuOpen(!menuOpen)}>
+        <div className="md:hidden flex items-center gap-2">
+          <AdminNotificationBell />
+          <button className="text-primary-foreground" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>

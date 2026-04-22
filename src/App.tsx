@@ -17,6 +17,7 @@ import FoodDelivery from "./pages/FoodDelivery.tsx";
 import TrainTimetable from "./pages/TrainTimetable.tsx";
 import Complaints from "./pages/Complaints.tsx";
 import DelayCompensation from "./pages/DelayCompensation.tsx";
+import AdminNotifications from "./pages/AdminNotifications.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/food" element={<FoodDelivery />} />
             <Route path="/complaints" element={<Complaints />} />
             <Route path="/delay-compensation" element={<DelayCompensation />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
