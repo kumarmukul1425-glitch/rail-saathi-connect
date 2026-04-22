@@ -52,8 +52,9 @@ export default function Header() {
         <div className="md:hidden flex items-center gap-2">
           <AdminNotificationBell />
           <button className="text-primary-foreground" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (
