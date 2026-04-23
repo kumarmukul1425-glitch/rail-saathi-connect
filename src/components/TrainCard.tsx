@@ -1,7 +1,8 @@
 import { Train } from "@/data/trains";
 import { useNavigate } from "react-router-dom";
-import { Clock, ArrowRight } from "lucide-react";
+import { ArrowRight, Radio } from "lucide-react";
 import { motion } from "framer-motion";
+import { useLiveTrainData } from "@/hooks/useLiveTrainData";
 
 interface TrainCardProps {
   train: Train;
@@ -11,6 +12,15 @@ interface TrainCardProps {
 
 export default function TrainCard({ train, date, index }: TrainCardProps) {
   const navigate = useNavigate();
+  const { data: live } = useLiveTrainData(
+    train.train_number,
+    train.source_code,
+    train.destination_code
+  );
+
+  const departure = live?.departure_time || train.departure_time;
+  const arrival = live?.arrival_time || train.arrival_time;
+  const isLive = live?.source === "rapidapi";
 
   const getAvailabilityChip = (seats: number) => {
     if (seats > 20) return "chip chip-available";
@@ -38,13 +48,20 @@ export default function TrainCard({ train, date, index }: TrainCardProps) {
           <span className="text-xs font-bold text-primary bg-primary/8 px-2 py-0.5 rounded">{train.train_number}</span>
           <span className="text-sm font-semibold text-foreground">{train.train_name}</span>
         </div>
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{train.train_type}</span>
+        <div className="flex items-center gap-1.5">
+          {isLive && (
+            <span className="flex items-center gap-1 text-[10px] font-semibold text-success bg-success/10 px-1.5 py-0.5 rounded-full">
+              <Radio className="w-2.5 h-2.5" /> LIVE
+            </span>
+          )}
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{train.train_type}</span>
+        </div>
       </div>
 
       {/* Time Grid */}
       <div className="grid grid-cols-3 items-center gap-2 mb-4">
         <div className="text-left">
-          <div className="time-display">{train.departure_time}</div>
+          <div className="time-display">{departure}</div>
           <div className="station-code text-xs">{train.source_code}</div>
         </div>
         <div className="flex flex-col items-center">
@@ -55,22 +72,26 @@ export default function TrainCard({ train, date, index }: TrainCardProps) {
           </div>
         </div>
         <div className="text-right">
-          <div className="time-display">{train.arrival_time}</div>
+          <div className="time-display">{arrival}</div>
           <div className="station-code text-xs">{train.destination_code}</div>
         </div>
       </div>
 
       {/* Class Chips */}
       <div className="flex flex-wrap gap-2">
-        {train.classes.map((cls) => (
-          <div key={cls.code} className="flex items-center gap-1.5 bg-secondary/60 rounded-lg px-2.5 py-1.5">
-            <span className="text-xs font-bold text-foreground">{cls.code}</span>
-            <span className="text-xs text-muted-foreground">₹{cls.price}</span>
-            <span className={getAvailabilityChip(cls.available_seats)}>
-              {getAvailabilityText(cls.available_seats)}
-            </span>
-          </div>
-        ))}
+        {train.classes.map((cls) => {
+          const livePrice = live?.fares?.[cls.code];
+          const price = livePrice ?? cls.price;
+          return (
+            <div key={cls.code} className="flex items-center gap-1.5 bg-secondary/60 rounded-lg px-2.5 py-1.5">
+              <span className="text-xs font-bold text-foreground">{cls.code}</span>
+              <span className="text-xs text-muted-foreground">₹{price}</span>
+              <span className={getAvailabilityChip(cls.available_seats)}>
+                {getAvailabilityText(cls.available_seats)}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </motion.div>
   );

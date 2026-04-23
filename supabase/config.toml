@@ -2,3 +2,9 @@ project_id = "akxxyyfyhzbscwyhfxbi"
 
 [functions.realtime-bookings-api]
 verify_jwt = false
+
+[functions.train-schedule-rapidapi]
+verify_jwt = false
+
+[functions.train-fare-rapidapi]
+verify_jwt = false
