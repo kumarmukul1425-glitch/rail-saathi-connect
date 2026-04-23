@@ -1,1 +1,4 @@
 project_id = "akxxyyfyhzbscwyhfxbi"
+
+[functions.realtime-bookings-api]
+verify_jwt = false
