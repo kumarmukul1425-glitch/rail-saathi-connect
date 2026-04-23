@@ -1,7 +1,8 @@
 import { Train } from "@/data/trains";
 import { useNavigate } from "react-router-dom";
-import { Clock, ArrowRight } from "lucide-react";
+import { ArrowRight, Radio } from "lucide-react";
 import { motion } from "framer-motion";
+import { useLiveTrainData } from "@/hooks/useLiveTrainData";
 
 interface TrainCardProps {
   train: Train;
@@ -11,6 +12,15 @@ interface TrainCardProps {
 
 export default function TrainCard({ train, date, index }: TrainCardProps) {
   const navigate = useNavigate();
+  const { data: live } = useLiveTrainData(
+    train.train_number,
+    train.source_code,
+    train.destination_code
+  );
+
+  const departure = live?.departure_time || train.departure_time;
+  const arrival = live?.arrival_time || train.arrival_time;
+  const isLive = live?.source === "rapidapi";
 
   const getAvailabilityChip = (seats: number) => {
     if (seats > 20) return "chip chip-available";
