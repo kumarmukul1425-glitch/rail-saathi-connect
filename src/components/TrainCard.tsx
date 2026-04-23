@@ -15,7 +15,8 @@ export default function TrainCard({ train, date, index }: TrainCardProps) {
   const { data: live } = useLiveTrainData(
     train.train_number,
     train.source_code,
-    train.destination_code
+    train.destination_code,
+    date
   );
 
   const departure = live?.departure_time || train.departure_time;
@@ -82,12 +83,17 @@ export default function TrainCard({ train, date, index }: TrainCardProps) {
         {train.classes.map((cls) => {
           const livePrice = live?.fares?.[cls.code];
           const price = livePrice ?? cls.price;
+          const liveAvail = live?.availability?.[cls.code];
+          const seats = liveAvail ? liveAvail.seats : cls.available_seats;
+          const chipText = liveAvail
+            ? liveAvail.status.replace(/^AVAILABLE-?0*/i, "AVL ").replace(/\s+/g, " ").trim()
+            : getAvailabilityText(cls.available_seats);
           return (
             <div key={cls.code} className="flex items-center gap-1.5 bg-secondary/60 rounded-lg px-2.5 py-1.5">
               <span className="text-xs font-bold text-foreground">{cls.code}</span>
               <span className="text-xs text-muted-foreground">₹{price}</span>
-              <span className={getAvailabilityChip(cls.available_seats)}>
-                {getAvailabilityText(cls.available_seats)}
+              <span className={getAvailabilityChip(seats)} title={liveAvail?.status}>
+                {chipText}
               </span>
             </div>
           );

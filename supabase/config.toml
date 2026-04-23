@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.train-fare-rapidapi]
 verify_jwt = false
+
+[functions.train-seat-availability-rapidapi]
+verify_jwt = false
