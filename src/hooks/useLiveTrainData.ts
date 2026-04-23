@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface LiveSeatInfo {
+  status: string;
+  seats: number;
+}
+
 export interface LiveTrainData {
   departure_time?: string;
   arrival_time?: string;
   duration?: string;
   fares?: Record<string, number>;
+  availability?: Record<string, LiveSeatInfo>;
   source: "rapidapi" | "fallback";
 }
 
@@ -18,9 +24,10 @@ const cache = new Map<string, LiveTrainData>();
 export function useLiveTrainData(
   trainNumber: string,
   fromCode?: string,
-  toCode?: string
+  toCode?: string,
+  date?: string
 ) {
-  const cacheKey = `${trainNumber}-${fromCode}-${toCode}`;
+  const cacheKey = `${trainNumber}-${fromCode}-${toCode}-${date ?? ""}`;
   const [data, setData] = useState<LiveTrainData | null>(
     cache.get(cacheKey) ?? null
   );
@@ -71,9 +78,20 @@ export function useLiveTrainData(
                 .catch(() => null)
             : Promise.resolve(null);
 
-        const [scheduleJson, fareJson] = await Promise.all([
+        const availPromise =
+          fromCode && toCode && date
+            ? fetch(
+                `${base}/train-seat-availability-rapidapi?trainNumber=${trainNumber}&fromStationCode=${fromCode}&toStationCode=${toCode}&date=${date}`,
+                { headers: { Authorization: `Bearer ${anon}`, apikey: anon } }
+              )
+                .then((r) => (r.ok ? r.json() : null))
+                .catch(() => null)
+            : Promise.resolve(null);
+
+        const [scheduleJson, fareJson, availJson] = await Promise.all([
           schedulePromise,
           farePromise,
+          availPromise,
         ]);
 
         if (cancelled) return;
@@ -97,6 +115,11 @@ export function useLiveTrainData(
           result.source = "rapidapi";
         }
 
+        if (availJson?.availability && Object.keys(availJson.availability).length > 0) {
+          result.availability = availJson.availability;
+          result.source = "rapidapi";
+        }
+
         cache.set(cacheKey, result);
         setData(result);
       } catch (e) {
@@ -109,7 +132,7 @@ export function useLiveTrainData(
     return () => {
       cancelled = true;
     };
-  }, [trainNumber, fromCode, toCode, cacheKey]);
+  }, [trainNumber, fromCode, toCode, date, cacheKey]);
 
   return { data, loading };
 }
