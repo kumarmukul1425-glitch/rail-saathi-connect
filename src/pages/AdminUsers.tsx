@@ -40,13 +40,25 @@ export default function AdminUsers() {
       setLoading(true);
       const { data, error } = await supabase.functions.invoke("admin-list-users");
       if (error) {
+        // FunctionsHttpError exposes .context.response with the status code
+        const status = (error as any)?.context?.response?.status;
+        if (status === 401) {
+          toast.error("Session expired", { description: "Please sign in again to continue." });
+          navigate("/auth");
+          return;
+        }
+        if (status === 403) {
+          toast.error("Access denied", { description: "Admin privileges are required to view users." });
+          navigate("/");
+          return;
+        }
         toast.error("Failed to load users", { description: error.message });
       } else {
         setUsers(data?.users || []);
       }
       setLoading(false);
     })();
-  }, [isAdmin]);
+  }, [isAdmin, navigate]);
 
   if (authLoading || roleLoading) {
     return (
