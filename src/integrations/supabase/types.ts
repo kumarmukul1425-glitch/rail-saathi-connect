@@ -20,6 +20,9 @@ export type Database = {
           id: string
           journey_date: string
           pnr: string
+          refund_amount: number
+          refund_reason: string | null
+          refunded_at: string | null
           seat_class: string
           status: string
           total_fare: number
@@ -31,6 +34,9 @@ export type Database = {
           id?: string
           journey_date: string
           pnr: string
+          refund_amount?: number
+          refund_reason?: string | null
+          refunded_at?: string | null
           seat_class: string
           status?: string
           total_fare: number
@@ -42,6 +48,9 @@ export type Database = {
           id?: string
           journey_date?: string
           pnr?: string
+          refund_amount?: number
+          refund_reason?: string | null
+          refunded_at?: string | null
           seat_class?: string
           status?: string
           total_fare?: number
@@ -525,6 +534,60 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string
+          id: string
+          reason: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          type?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -538,6 +601,10 @@ export type Database = {
         Returns: boolean
       }
       is_booking_owner: { Args: { _booking_id: string }; Returns: boolean }
+      process_auto_refund: {
+        Args: { _booking_id: string; _reason: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "user"
