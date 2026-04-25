@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import AdminNotificationBell from "@/components/AdminNotificationBell";
+import AdminUsersLink from "@/components/AdminUsersLink";
 
 export default function Header() {
   const { user, signOut } = useAuth();
@@ -37,6 +38,7 @@ export default function Header() {
               {n.label}
             </Link>
           ))}
+          <AdminUsersLink />
           <AdminNotificationBell />
           {user ? (
             <button onClick={signOut} className="flex items-center gap-1 text-xs font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">
@@ -50,6 +52,7 @@ export default function Header() {
         </nav>
 
         <div className="md:hidden flex items-center gap-2">
+          <AdminUsersLink />
           <AdminNotificationBell />
           <button className="text-primary-foreground" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
