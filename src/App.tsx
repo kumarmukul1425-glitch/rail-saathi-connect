@@ -19,6 +19,7 @@ import Complaints from "./pages/Complaints.tsx";
 import DelayCompensation from "./pages/DelayCompensation.tsx";
 import AdminNotifications from "./pages/AdminNotifications.tsx";
 import AdminUsers from "./pages/AdminUsers.tsx";
+import Wallet from "./pages/Wallet.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/timetable/:trainNumber" element={<TrainTimetable />} />
             <Route path="/book/:trainNumber" element={<BookTicket />} />
             <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/wallet" element={<Wallet />} />
             <Route path="/assistant" element={<TravelAssistant />} />
             <Route path="/sleep-alert" element={<SleepAlert />} />
             <Route path="/live-status" element={<LiveTrainStatus />} />
