@@ -21,6 +21,7 @@ import AdminNotifications from "./pages/AdminNotifications.tsx";
 import AdminUsers from "./pages/AdminUsers.tsx";
 import Wallet from "./pages/Wallet.tsx";
 import MissedTrainRescue from "./pages/MissedTrainRescue.tsx";
+import AntiTheft from "./pages/AntiTheft.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/rescue" element={<MissedTrainRescue />} />
             <Route path="/rescue/:bookingId" element={<MissedTrainRescue />} />
+            <Route path="/anti-theft" element={<AntiTheft />} />
             <Route path="/assistant" element={<TravelAssistant />} />
             <Route path="/sleep-alert" element={<SleepAlert />} />
             <Route path="/live-status" element={<LiveTrainStatus />} />
