@@ -20,6 +20,7 @@ import DelayCompensation from "./pages/DelayCompensation.tsx";
 import AdminNotifications from "./pages/AdminNotifications.tsx";
 import AdminUsers from "./pages/AdminUsers.tsx";
 import Wallet from "./pages/Wallet.tsx";
+import MissedTrainRescue from "./pages/MissedTrainRescue.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
