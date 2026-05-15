@@ -1,4 +1,4 @@
-import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTriangle, MessageSquare, Wallet } from "lucide-react";
+import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTriangle, MessageSquare, Wallet, LifeBuoy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
