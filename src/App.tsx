@@ -41,6 +41,8 @@ const App = () => (
             <Route path="/book/:trainNumber" element={<BookTicket />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/wallet" element={<Wallet />} />
+            <Route path="/rescue" element={<MissedTrainRescue />} />
+            <Route path="/rescue/:bookingId" element={<MissedTrainRescue />} />
             <Route path="/assistant" element={<TravelAssistant />} />
             <Route path="/sleep-alert" element={<SleepAlert />} />
             <Route path="/live-status" element={<LiveTrainStatus />} />
