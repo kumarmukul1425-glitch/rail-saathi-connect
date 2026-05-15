@@ -1,4 +1,4 @@
-import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTriangle, MessageSquare, Wallet } from "lucide-react";
+import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTriangle, MessageSquare, Wallet, LifeBuoy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
@@ -17,6 +17,7 @@ export default function Header() {
     { to: "/wallet", label: "Wallet", icon: Wallet, auth: true },
     { to: "/assistant", label: "AI Assistant", icon: Bot, auth: true },
     { to: "/sleep-alert", label: "Sleep Alert", icon: Moon, auth: true },
+    { to: "/rescue", label: "Rescue", icon: LifeBuoy, auth: true },
     { to: "/delay-compensation", label: "Compensation", icon: AlertTriangle, auth: true },
     { to: "/complaints", label: "Complaints", icon: MessageSquare, auth: true },
   ];
