@@ -17,6 +17,7 @@ export default function Header() {
     { to: "/wallet", label: "Wallet", icon: Wallet, auth: true },
     { to: "/assistant", label: "AI Assistant", icon: Bot, auth: true },
     { to: "/sleep-alert", label: "Sleep Alert", icon: Moon, auth: true },
+    { to: "/rescue", label: "Rescue", icon: LifeBuoy, auth: true },
     { to: "/delay-compensation", label: "Compensation", icon: AlertTriangle, auth: true },
     { to: "/complaints", label: "Complaints", icon: MessageSquare, auth: true },
   ];
