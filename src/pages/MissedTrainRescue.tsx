@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import { motion } from "framer-motion";
-import { AlertTriangle, TrainFront, Bus, Car, Hotel, Sparkles, RefreshCw, ArrowLeft, Clock, IndianRupee, MapPin, Star, Loader2, Info } from "lucide-react";
+import { AlertTriangle, TrainFront, Bus, Car, Hotel, Sparkles, RefreshCw, ArrowLeft, Clock, IndianRupee, MapPin, Star, Loader2, Info, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
