@@ -187,29 +187,33 @@ export default function MissedTrainRescue() {
             </Section>
 
             {/* Buses */}
-            <Section icon={Bus} title="Bus Alternatives" accent="amber">
+            <Section icon={Bus} title="Bus Alternatives" accent="amber" live={data.dataSource === "live-google"}>
               <div className="space-y-2">
                 {data.buses.map((b, i) => (
-                  <Row key={i} title={b.operator} subtitle={`Departs ${b.departs} • ${b.duration} • ${b.seats} seats left`} price={b.fare} />
+                  <Row key={i} title={b.operator}
+                    subtitle={`Departs ${b.departs} • ${b.duration} • ${b.seats} seats${b.address ? ` • ${b.address}` : ""}`}
+                    price={b.fare} />
                 ))}
               </div>
             </Section>
 
             {/* Cabs */}
-            <Section icon={Car} title="Cab & Carpool" accent="amber">
+            <Section icon={Car} title="Cab & Carpool" accent="amber" live={data.dataSource === "live-google"}>
               <div className="space-y-2">
                 {data.cabs.map((c, i) => (
-                  <Row key={i} title={`${c.provider} (${c.type})`} subtitle={`ETA ${c.eta}`} price={c.fare} />
+                  <Row key={i} title={`${c.provider} (${c.type})`}
+                    subtitle={`ETA ${c.eta}${c.distanceKm ? ` • ${c.distanceKm} km` : ""}${c.durationToDest ? ` • ${c.durationToDest} ride` : ""}${c.pickupAt ? ` • Pickup: ${c.pickupAt}` : ""}`}
+                    price={c.fare} />
                 ))}
               </div>
             </Section>
 
             {/* Hotels */}
-            <Section icon={Hotel} title="Stay Nearby Tonight" accent="amber">
+            <Section icon={Hotel} title="Stay Nearby Tonight" accent="amber" live={data.dataSource === "live-google"}>
               <div className="space-y-2">
                 {data.hotels.map((h, i) => (
                   <Row key={i} title={h.name}
-                    subtitle={<span className="flex items-center gap-2"><MapPin className="w-3 h-3" />{h.distance} <Star className="w-3 h-3 fill-amber-400 text-amber-400 ml-1" />{h.rating}</span>}
+                    subtitle={<span className="flex items-center gap-2"><MapPin className="w-3 h-3" />{h.distance} <Star className="w-3 h-3 fill-amber-400 text-amber-400 ml-1" />{Number(h.rating).toFixed(1)}</span>}
                     price={h.price} priceSuffix="/night" />
                 ))}
               </div>
