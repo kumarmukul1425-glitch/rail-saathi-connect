@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import { motion } from "framer-motion";
-import { AlertTriangle, TrainFront, Bus, Car, Hotel, Sparkles, RefreshCw, ArrowLeft, Clock, IndianRupee, MapPin, Star, Loader2, Info } from "lucide-react";
+import { AlertTriangle, TrainFront, Bus, Car, Hotel, Sparkles, RefreshCw, ArrowLeft, Clock, IndianRupee, MapPin, Star, Loader2, Info, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -17,6 +17,8 @@ type RescueData = {
   hotels: any[];
   refund: { eligible: boolean; tdrEligible: boolean; message: string; maxRefund: number };
   aiSuggestions: string;
+  dataSource?: "live-google" | "mock";
+  fetchedAt?: string;
 };
 
 export default function MissedTrainRescue() {
@@ -35,22 +37,28 @@ export default function MissedTrainRescue() {
       .then(({ data }) => setBookings(data || []));
   }, [user]);
 
-  const runRescue = async (id: string) => {
+  const runRescue = async (id: string, silent = false) => {
     setSelectedId(id);
-    setLoading(true);
-    setData(null);
+    if (!silent) { setLoading(true); setData(null); }
     try {
       const { data: r, error } = await supabase.functions.invoke("missed-train-rescue", { body: { bookingId: id } });
       if (error) throw error;
       setData(r);
     } catch (e: any) {
-      toast.error(e.message || "Failed to fetch rescue options");
+      if (!silent) toast.error(e.message || "Failed to fetch rescue options");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => { if (routeId) runRescue(routeId); }, [routeId]);
+
+  // Auto-refresh live data every 30s while a booking is selected
+  useEffect(() => {
+    if (!selectedId) return;
+    const interval = setInterval(() => runRescue(selectedId, true), 30000);
+    return () => clearInterval(interval);
+  }, [selectedId]);
 
   if (!user) {
     return (
@@ -122,11 +130,21 @@ export default function MissedTrainRescue() {
         {data && (
           <div className="space-y-5">
             {/* Selected booking */}
-            <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
-              <div>
-                <div className="text-xs text-muted-foreground">Missed</div>
-                <div className="text-sm font-bold text-foreground">{data.booking.trains?.train_number} • {data.booking.trains?.train_name}</div>
-                <div className="text-[11px] text-muted-foreground">PNR {data.booking.pnr} • Dep {data.booking.trains?.departure_time}</div>
+            <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="text-xs text-muted-foreground">Missed</div>
+                  {data.dataSource === "live-google" && (
+                    <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                      <Radio className="w-2.5 h-2.5 animate-pulse" /> Live
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm font-bold text-foreground truncate">{data.booking.trains?.train_number} • {data.booking.trains?.train_name}</div>
+                <div className="text-[11px] text-muted-foreground">
+                  PNR {data.booking.pnr} • Dep {data.booking.trains?.departure_time}
+                  {data.fetchedAt && <> • updated {new Date(data.fetchedAt).toLocaleTimeString()}</>}
+                </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => { setSelectedId(undefined); setData(null); }}>
                 <RefreshCw className="w-3.5 h-3.5 mr-1" /> Change
@@ -169,29 +187,33 @@ export default function MissedTrainRescue() {
             </Section>
 
             {/* Buses */}
-            <Section icon={Bus} title="Bus Alternatives" accent="amber">
+            <Section icon={Bus} title="Bus Alternatives" accent="amber" live={data.dataSource === "live-google"}>
               <div className="space-y-2">
                 {data.buses.map((b, i) => (
-                  <Row key={i} title={b.operator} subtitle={`Departs ${b.departs} • ${b.duration} • ${b.seats} seats left`} price={b.fare} />
+                  <Row key={i} title={b.operator}
+                    subtitle={`Departs ${b.departs} • ${b.duration} • ${b.seats} seats${b.address ? ` • ${b.address}` : ""}`}
+                    price={b.fare} />
                 ))}
               </div>
             </Section>
 
             {/* Cabs */}
-            <Section icon={Car} title="Cab & Carpool" accent="amber">
+            <Section icon={Car} title="Cab & Carpool" accent="amber" live={data.dataSource === "live-google"}>
               <div className="space-y-2">
                 {data.cabs.map((c, i) => (
-                  <Row key={i} title={`${c.provider} (${c.type})`} subtitle={`ETA ${c.eta}`} price={c.fare} />
+                  <Row key={i} title={`${c.provider} (${c.type})`}
+                    subtitle={`ETA ${c.eta}${c.distanceKm ? ` • ${c.distanceKm} km` : ""}${c.durationToDest ? ` • ${c.durationToDest} ride` : ""}${c.pickupAt ? ` • Pickup: ${c.pickupAt}` : ""}`}
+                    price={c.fare} />
                 ))}
               </div>
             </Section>
 
             {/* Hotels */}
-            <Section icon={Hotel} title="Stay Nearby Tonight" accent="amber">
+            <Section icon={Hotel} title="Stay Nearby Tonight" accent="amber" live={data.dataSource === "live-google"}>
               <div className="space-y-2">
                 {data.hotels.map((h, i) => (
                   <Row key={i} title={h.name}
-                    subtitle={<span className="flex items-center gap-2"><MapPin className="w-3 h-3" />{h.distance} <Star className="w-3 h-3 fill-amber-400 text-amber-400 ml-1" />{h.rating}</span>}
+                    subtitle={<span className="flex items-center gap-2"><MapPin className="w-3 h-3" />{h.distance} <Star className="w-3 h-3 fill-amber-400 text-amber-400 ml-1" />{Number(h.rating).toFixed(1)}</span>}
                     price={h.price} priceSuffix="/night" />
                 ))}
               </div>
@@ -218,7 +240,7 @@ export default function MissedTrainRescue() {
   );
 }
 
-function Section({ icon: Icon, title, accent, children }: { icon: any; title: string; accent: "primary" | "amber"; children: React.ReactNode }) {
+function Section({ icon: Icon, title, accent, live, children }: { icon: any; title: string; accent: "primary" | "amber"; live?: boolean; children: React.ReactNode }) {
   const accentCls = accent === "primary" ? "bg-primary/10 text-primary" : "bg-amber-500/10 text-amber-600 dark:text-amber-400";
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-4">
@@ -227,6 +249,11 @@ function Section({ icon: Icon, title, accent, children }: { icon: any; title: st
           <Icon className="w-4 h-4" />
         </div>
         <h3 className="text-sm font-bold text-foreground">{title}</h3>
+        {live && (
+          <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded ml-auto">
+            <Radio className="w-2.5 h-2.5 animate-pulse" /> Live
+          </span>
+        )}
       </div>
       {children}
     </motion.div>
