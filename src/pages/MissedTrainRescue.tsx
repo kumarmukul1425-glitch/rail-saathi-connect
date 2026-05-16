@@ -37,22 +37,28 @@ export default function MissedTrainRescue() {
       .then(({ data }) => setBookings(data || []));
   }, [user]);
 
-  const runRescue = async (id: string) => {
+  const runRescue = async (id: string, silent = false) => {
     setSelectedId(id);
-    setLoading(true);
-    setData(null);
+    if (!silent) { setLoading(true); setData(null); }
     try {
       const { data: r, error } = await supabase.functions.invoke("missed-train-rescue", { body: { bookingId: id } });
       if (error) throw error;
       setData(r);
     } catch (e: any) {
-      toast.error(e.message || "Failed to fetch rescue options");
+      if (!silent) toast.error(e.message || "Failed to fetch rescue options");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => { if (routeId) runRescue(routeId); }, [routeId]);
+
+  // Auto-refresh live data every 30s while a booking is selected
+  useEffect(() => {
+    if (!selectedId) return;
+    const interval = setInterval(() => runRescue(selectedId, true), 30000);
+    return () => clearInterval(interval);
+  }, [selectedId]);
 
   if (!user) {
     return (
