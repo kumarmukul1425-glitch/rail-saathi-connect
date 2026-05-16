@@ -130,11 +130,21 @@ export default function MissedTrainRescue() {
         {data && (
           <div className="space-y-5">
             {/* Selected booking */}
-            <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
-              <div>
-                <div className="text-xs text-muted-foreground">Missed</div>
-                <div className="text-sm font-bold text-foreground">{data.booking.trains?.train_number} • {data.booking.trains?.train_name}</div>
-                <div className="text-[11px] text-muted-foreground">PNR {data.booking.pnr} • Dep {data.booking.trains?.departure_time}</div>
+            <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="text-xs text-muted-foreground">Missed</div>
+                  {data.dataSource === "live-google" && (
+                    <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                      <Radio className="w-2.5 h-2.5 animate-pulse" /> Live
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm font-bold text-foreground truncate">{data.booking.trains?.train_number} • {data.booking.trains?.train_name}</div>
+                <div className="text-[11px] text-muted-foreground">
+                  PNR {data.booking.pnr} • Dep {data.booking.trains?.departure_time}
+                  {data.fetchedAt && <> • updated {new Date(data.fetchedAt).toLocaleTimeString()}</>}
+                </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => { setSelectedId(undefined); setData(null); }}>
                 <RefreshCw className="w-3.5 h-3.5 mr-1" /> Change
