@@ -17,6 +17,8 @@ type RescueData = {
   hotels: any[];
   refund: { eligible: boolean; tdrEligible: boolean; message: string; maxRefund: number };
   aiSuggestions: string;
+  dataSource?: "live-google" | "mock";
+  fetchedAt?: string;
 };
 
 export default function MissedTrainRescue() {
