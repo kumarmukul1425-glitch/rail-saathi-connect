@@ -240,7 +240,7 @@ export default function MissedTrainRescue() {
   );
 }
 
-function Section({ icon: Icon, title, accent, children }: { icon: any; title: string; accent: "primary" | "amber"; children: React.ReactNode }) {
+function Section({ icon: Icon, title, accent, live, children }: { icon: any; title: string; accent: "primary" | "amber"; live?: boolean; children: React.ReactNode }) {
   const accentCls = accent === "primary" ? "bg-primary/10 text-primary" : "bg-amber-500/10 text-amber-600 dark:text-amber-400";
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-4">
@@ -249,6 +249,11 @@ function Section({ icon: Icon, title, accent, children }: { icon: any; title: st
           <Icon className="w-4 h-4" />
         </div>
         <h3 className="text-sm font-bold text-foreground">{title}</h3>
+        {live && (
+          <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded ml-auto">
+            <Radio className="w-2.5 h-2.5 animate-pulse" /> Live
+          </span>
+        )}
       </div>
       {children}
     </motion.div>
