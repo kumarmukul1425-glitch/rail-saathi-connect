@@ -86,9 +86,24 @@ export default function LiveTrainStatus() {
       });
       if (error) throw error;
       setStatus(data);
-      // Auto-check compensation for 3hr+ delays
-      if (data?.delay_minutes >= 180) {
+      // Auto-check compensation + auto-refund for 3hr+ delays or cancellation
+      const isCancelled = /cancel/i.test((data as any)?.status || "") || (data as any)?.cancelled === true;
+      if (data?.delay_minutes >= 180 || isCancelled) {
         checkDelayCompensation(data.train_number, data.delay_minutes);
+        // Trigger automatic full refund to wallet
+        try {
+          const { data: refundData } = await supabase.functions.invoke("auto-refund-scan");
+          const refunded = (refundData?.results || []).filter((r: any) => r.ok);
+          if (refunded.length) {
+            const total = refunded.reduce((s: number, r: any) => s + (r.amount || 0), 0);
+            toast.success(`💰 ₹${total} refunded to your wallet`, {
+              description: `${refunded.length} booking(s) auto-refunded — ${isCancelled ? "train cancelled" : "3hr+ delay"}`,
+              duration: 10000,
+              action: { label: "View Wallet", onClick: () => (window.location.href = "/wallet") },
+            });
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+          }
+        } catch { /* silent */ }
       }
     } catch {
       setStatus(null);
