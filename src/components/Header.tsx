@@ -1,4 +1,4 @@
-import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTriangle, MessageSquare, Wallet, LifeBuoy } from "lucide-react";
+import { Train, LogIn, LogOut, Menu, X, Bot, Moon, Navigation, Utensils, AlertTriangle, MessageSquare, Wallet, LifeBuoy, Receipt } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
@@ -15,6 +15,7 @@ export default function Header() {
     { to: "/food", label: "Food Order", icon: Utensils, auth: true },
     { to: "/my-bookings", label: "My Bookings", icon: null, auth: true },
     { to: "/wallet", label: "Wallet", icon: Wallet, auth: true },
+    { to: "/refunds", label: "Refunds", icon: Receipt, auth: true },
     { to: "/assistant", label: "AI Assistant", icon: Bot, auth: true },
     { to: "/sleep-alert", label: "Sleep Alert", icon: Moon, auth: true },
     { to: "/rescue", label: "Rescue", icon: LifeBuoy, auth: true },
