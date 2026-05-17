@@ -20,6 +20,7 @@ import DelayCompensation from "./pages/DelayCompensation.tsx";
 import AdminNotifications from "./pages/AdminNotifications.tsx";
 import AdminUsers from "./pages/AdminUsers.tsx";
 import Wallet from "./pages/Wallet.tsx";
+import RefundStatus from "./pages/RefundStatus.tsx";
 import MissedTrainRescue from "./pages/MissedTrainRescue.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/book/:trainNumber" element={<BookTicket />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/wallet" element={<Wallet />} />
+            <Route path="/refunds" element={<RefundStatus />} />
             <Route path="/rescue" element={<MissedTrainRescue />} />
             <Route path="/rescue/:bookingId" element={<MissedTrainRescue />} />
             <Route path="/assistant" element={<TravelAssistant />} />
